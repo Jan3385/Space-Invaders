@@ -7,6 +7,12 @@
 #include "game/Mothership.h"
 #include "game/BunkerArray.h"
 
+typedef enum GameState : uint8_t{
+  GameStart = 0,
+  GamePlay  = 1,
+  GameEnd,
+} GameState;
+
 typedef struct Game{
   Player *player;
   AlienArray *aliens;
