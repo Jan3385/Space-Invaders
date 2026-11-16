@@ -150,9 +150,6 @@ void Game_RemoveLife(Game *game){
 void Game_SaveScore(Scores highScores, uint16_t score){
   FILE *f = fopen(SAVE_FILE, "wb");
   
-  int a = 0;
-  printf("prewriting %d %d %d %d %d\n", highScores[a++], highScores[a++], highScores[a++], highScores[a++], highScores[a++]);
-
   if(!f){
     SDL_LogWarn(SDL_LOG_CATEGORY_SYSTEM, "Could not open file '%d'! Score was not saved");
     return;
@@ -168,9 +165,6 @@ void Game_SaveScore(Scores highScores, uint16_t score){
       highScores[i-1] = temp;
     }
   }
-
-  a = 0;
-  printf("writing %d %d %d %d %d\n", highScores[a++], highScores[a++], highScores[a++], highScores[a++], highScores[a++]);
 
   fwrite(highScores, sizeof(uint16_t), sizeof(Scores)/sizeof(uint16_t), f);
 
