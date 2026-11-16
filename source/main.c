@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     RenderApp(renderer, game, gameState, score, highScores);
   }
 
-  DestroyGame(game);          game     = NULL;
+  if(game) DestroyGame(game); game     = NULL;
   DestroyRenderer(renderer);  renderer = NULL;
   DestroyWindow(window);      window   = NULL;
   
