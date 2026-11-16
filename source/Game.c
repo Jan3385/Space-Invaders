@@ -2,7 +2,7 @@
 
 #include "config.h"
 
-Game *CreateGame(Renderer *renderer){
+Game *CreateGame(Renderer *renderer, Scores highScores){
   Game *g = (Game*)malloc(sizeof(Game));
 
   g->player = CreatePlayer(renderer);
@@ -12,15 +12,14 @@ Game *CreateGame(Renderer *renderer){
 
   g->lives = GAME_LIVES;
   g->score = 0;
-  g->highScore = Game_GetSaveScore();
+
+  memcpy(g->highScores, highScores, sizeof(Scores));
 
   return g;
 }
 
 void DestroyGame(Game *game){
-  if(game->score > game->highScore){
-    Game_SaveScore(game->score);
-  }
+  Game_SaveScore(game->highScores, game->score);
 
   DestroyPlayer(game->player);
   DestroyAlienArray(game->aliens);
@@ -133,7 +132,7 @@ void Game_Draw(Game *game, Renderer *renderer){
   Renderer_RenderText(renderer, "BST SCR", (Vec2i){60, 5});
   
   char bestScoreStr[8]; // '-' + '000000' + '\0'
-  sprintf(bestScoreStr, "%04d", game->highScore%1000000);
+  sprintf(bestScoreStr, "%04d", game->highScores[0]%1000000);
   Renderer_RenderText(renderer, bestScoreStr,(Vec2i){60, 14});
   // ------
 
@@ -148,31 +147,49 @@ void Game_RemoveLife(Game *game){
   game->lives--;
 }
 
-void Game_SaveScore(uint16_t score){
-  FILE *f = fopen(SAVE_FILE, "w");
+void Game_SaveScore(Scores highScores, uint16_t score){
+  FILE *f = fopen(SAVE_FILE, "wb");
   
+  int a = 0;
+  printf("prewriting %d %d %d %d %d\n", highScores[a++], highScores[a++], highScores[a++], highScores[a++], highScores[a++]);
+
   if(!f){
     SDL_LogWarn(SDL_LOG_CATEGORY_SYSTEM, "Could not open file '%d'! Score was not saved");
     return;
   }
 
-  fprintf(f, "%d", score);
+  if(highScores[4] < score){
+    highScores[4] = score;
+  }
+  for (int64_t i = sizeof(Scores)/sizeof(uint16_t)-1; i > 0; i--){
+    if (highScores[i] > highScores[i-1]){
+      uint16_t temp = highScores[i];
+      highScores[i] = highScores[i-1];
+      highScores[i-1] = temp;
+    }
+  }
+
+  a = 0;
+  printf("writing %d %d %d %d %d\n", highScores[a++], highScores[a++], highScores[a++], highScores[a++], highScores[a++]);
+
+  fwrite(highScores, sizeof(uint16_t), sizeof(Scores)/sizeof(uint16_t), f);
 
   fclose(f);
 }
 
-uint16_t Game_GetSaveScore(){
-  FILE *f = fopen(SAVE_FILE, "r");
+void Game_LoadSaveScore(Scores hScores){
+  FILE *f = fopen(SAVE_FILE, "rb");
   
   if(!f){
     SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Could not open '%d'. This may be because no save was yet created");
-    return 0;
+    for (size_t i = 0; i < sizeof(Scores) / sizeof(uint16_t); i++){
+      hScores[i] = 0;
+    }
+    
+    return;
   }
 
-  char line[6];
-  fgets(line, 6, f);
+  fread(hScores, sizeof(uint16_t), sizeof(Scores) / sizeof(uint16_t), f);
 
   fclose(f);
-
-  return atoi(line);
 }

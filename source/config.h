@@ -36,11 +36,11 @@
 // Original Space Invaders resolution
 #define WINDOW_WIDTH  224
 #define WINDOW_HEIGHT 256
-#define WINDOW_SCALE  3
+#define WINDOW_SCALE  2
 
 // Misc
 #define USED_FONT "assets/PixelFont2.ttf"
-#define SAVE_FILE "SaveScore.txt"
+#define SAVE_FILE "SaveScore.bin"
 
 // Bunker
 #define BUNKER_ARR "\

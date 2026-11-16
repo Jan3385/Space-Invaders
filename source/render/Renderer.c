@@ -274,16 +274,20 @@ void Renderer_RenderMenu(Renderer *renderer, uint16_t highScore){
 
 }
 
-void Renderer_RenderEndScreen(Renderer *renderer, uint16_t score, uint16_t highScore){
+void Renderer_RenderEndScreen(Renderer *renderer, uint16_t score, Scores highScores){
   Renderer_RenderTextCentered(renderer, "Game Over!", (Vec2i){WINDOW_WIDTH/2, 30});
   
   char scoreText[15]; // "Score: " (7) + '-' + "######" (6) + '\0'
   sprintf(scoreText, "Score: %d", score%100000);
   Renderer_RenderTextCentered(renderer, scoreText, (Vec2i){WINDOW_WIDTH/2, 65});
 
-  char bestScoreText[20]; // "Best Score: " (7) + '-' + "######" (6) + '\0'
-  sprintf(bestScoreText, "Best Score: %d", highScore%100000);
-  Renderer_RenderTextCentered(renderer, bestScoreText, (Vec2i){WINDOW_WIDTH/2, 85});
+  char bestScoreText[10]; // "#: " (3) + '-' + "######" (6) + '\0'
+  Renderer_RenderTextCentered(renderer, "Best scores:", (Vec2i){WINDOW_WIDTH/2, 85});
+  for (uint8_t i = 0; i < 5; i++){
+    sprintf(bestScoreText, "%d: %d", i+1, highScores[i]%100000);
+    Renderer_RenderText(renderer, bestScoreText, (Vec2i){30, 98 + i*12});
+  }
+  
 
   Renderer_RenderTexture(renderer, renderer->spaceBar, (Vec2i){WINDOW_WIDTH/2, WINDOW_HEIGHT-40}, 1);
 }

@@ -15,6 +15,8 @@
 #include "game/Mothership.h"
 #include "game/BunkerArray.h"
 
+typedef uint16_t Scores[5];
+
 typedef struct Texture {
   SDL_Texture *t;
   int width, height;
@@ -57,6 +59,6 @@ void Renderer_RenderLineProgress(Renderer *renderer, int yOffset, uint8_t height
 void Renderer_RenderTexture(Renderer *renderer, Texture *texture, Vec2i pos, uint8_t scale);
 
 void Renderer_RenderMenu(Renderer *renderer, uint16_t highScore);
-void Renderer_RenderEndScreen(Renderer *renderer, uint16_t score, uint16_t highScore);
+void Renderer_RenderEndScreen(Renderer *renderer, uint16_t score, Scores highScores);
 
 #endif

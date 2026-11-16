@@ -4,7 +4,7 @@
 
 #include <time.h>
 
-void RenderApp(Renderer* renderer, Game *game, GameState gameState, uint16_t score, uint16_t highScore);
+void RenderApp(Renderer* renderer, Game *game, GameState gameState, uint16_t score, Scores highScores);
 
 int main(int argc, char *argv[])
 {
@@ -22,7 +22,8 @@ int main(int argc, char *argv[])
 
   Game *game = NULL;
   uint16_t score = 0;
-  uint16_t highScore = Game_GetSaveScore();
+  Scores highScores = { 0 };
+  Game_LoadSaveScore(highScores);
 
   GameState gameState = GameStart;
 
@@ -34,7 +35,7 @@ int main(int argc, char *argv[])
 
     if(game) Game_Tick(game, renderer, window);
     else if(Window_KeyDown(window, KEY_SPACE)){
-      game = CreateGame(renderer);
+      game = CreateGame(renderer, highScores);
       gameState = GamePlay;
       Window_ResetKeyEvents(window);
     }
@@ -43,13 +44,13 @@ int main(int argc, char *argv[])
       Window_ResetKeyEvents(window);
 
       score = game->score;
-      highScore = Game_GetSaveScore();
       DestroyGame(game);
+      Game_LoadSaveScore(highScores);
       game = NULL;
       gameState = GameEnd;
     }
 
-    RenderApp(renderer, game, gameState, score, highScore);
+    RenderApp(renderer, game, gameState, score, highScores);
   }
 
   DestroyGame(game);          game     = NULL;
@@ -61,20 +62,20 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-void RenderApp(Renderer* renderer, Game *game, GameState gameState, uint16_t score, uint16_t highScore){
+void RenderApp(Renderer* renderer, Game *game, GameState gameState, uint16_t score, Scores highScores){
   SDL_RenderClear(renderer->r);
 
   switch (gameState)
   {
   case GameStart:
-    Renderer_RenderMenu(renderer, highScore);
+    Renderer_RenderMenu(renderer, highScores[0]);
   break;
   case GamePlay:
     if(game) Game_Draw(game, renderer);
     else SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Game state PLAY but no game object is present!");
     break;
   case GameEnd:
-    Renderer_RenderEndScreen(renderer, score, highScore);
+    Renderer_RenderEndScreen(renderer, score, highScores);
     break;
   default:
     SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Invalid GameState present!");
