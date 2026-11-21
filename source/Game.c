@@ -13,6 +13,10 @@ Game *CreateGame(Renderer *renderer, Scores highScores){
   g->lives = GAME_LIVES;
   g->score = 0;
 
+  g->explosion.texture = Renderer_LoadTexture(renderer, Renderer_FileGetPathTo(renderer, EXPLOSION_TEXTURE));
+  g->explosion.position = (Vec2i){-1, -1};
+  g->explosion.lifeTimer = 0;
+
   memcpy(g->highScores, highScores, sizeof(Scores));
 
   return g;
@@ -105,6 +109,10 @@ void Game_Tick(Game *game, Renderer *renderer, Window *window){
   static const float aliensTotal = ALIENS_WIDTH * ALIENS_HEIGHT;
   int waitTime = ((game->aliens->livingAliens / aliensTotal) * (ENEMY_WAIT_MAX-ENEMY_WAIT_MIN)) + ENEMY_WAIT_MIN;
   if(frame >= waitTime){
+    // Explosion logic
+    if(game->explosion.lifeTimer > 0) 
+      --game->explosion.lifeTimer;
+    
     AlienArray_Move(game->aliens);
     frame = 0;
   }
@@ -113,6 +121,8 @@ void Game_Tick(Game *game, Renderer *renderer, Window *window){
 void Game_Draw(Game *game, Renderer *renderer){
   Renderer_RenderPlayer(renderer, game->player);
   Renderer_RenderLives(renderer, game);
+
+  Renderer_RenderExplosion(renderer, &game->explosion);
   
   Renderer_RenderAlienArray(renderer, game->aliens);
   if(game->mothership)
@@ -145,6 +155,11 @@ void Game_Draw(Game *game, Renderer *renderer){
 
 void Game_RemoveLife(Game *game){
   game->lives--;
+}
+
+void Game_ExplosionAt(Game *game, Vec2i position){
+  game->explosion.position = position;
+  game->explosion.lifeTimer = EXPLOSION_LIFE_TICKS;
 }
 
 void Game_SaveScore(Scores highScores, uint16_t score, Renderer *r){

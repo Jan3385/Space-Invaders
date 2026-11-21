@@ -17,6 +17,8 @@
 
 typedef uint16_t Scores[5];
 
+typedef struct Explosion Explosion;
+
 typedef struct Texture {
   SDL_Texture *t;
   int width, height;
@@ -49,6 +51,7 @@ void Renderer_RenderAlienArray(Renderer *renderer, AlienArray *array);
 void Renderer_RenderMothership(Renderer *renderer, Mothership *mothership);
 void Renderer_RenderBunkerArray(Renderer *renderer, BunkerArray *array);
 void Renderer_RenderLives(Renderer *renderer, Game *game);
+void Renderer_RenderExplosion(Renderer *renderer, Explosion *explosion);
 
 void Renderer_RenderText(Renderer *renderer, const char* str, Vec2i pos);
 void Renderer_RenderTextCentered(Renderer *renderer, const char* str, Vec2i pos);

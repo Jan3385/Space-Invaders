@@ -329,3 +329,14 @@ void Renderer_RenderLives(Renderer *renderer, Game *game){
   }
   
 }
+
+void Renderer_RenderExplosion(Renderer *renderer, Explosion *explosion){
+  if(explosion->lifeTimer == 0) return;
+
+  SDL_Rect rect = {
+    explosion->position.x * WINDOW_SCALE,     explosion->position.y * WINDOW_SCALE,
+    explosion->texture->width * WINDOW_SCALE, explosion->texture->height * WINDOW_SCALE
+  };
+
+  SDL_RenderCopy(renderer->r, explosion->texture->t, NULL, &rect);
+}

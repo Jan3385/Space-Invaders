@@ -16,6 +16,7 @@
 #define ENEMY_PROJECTILE_SPEED  3 // MAX <uint8
 #define ENEMY_WAIT_MAX 25
 #define ENEMY_WAIT_MIN 8
+#define EXPLOSION_LIFE_TICKS 2
 #define SCORE_ALIEN_A 40
 #define SCORE_ALIEN_B 20
 #define SCORE_ALIEN_C 10
@@ -74,6 +75,7 @@
 #define ALIENS_TEXTURE_SHEET "assets/Aliens.png"
 #define SINGLE_ALIEN_TEXTURE "assets/Alien.png"
 #define MOTHERSHIP_TEXTURE "assets/Mothership.png"
+#define EXPLOSION_TEXTURE "assets/Explosion.png"
 #define ALIEN_TEXTURE_A1 { 0,  0, 10, 10}
 #define ALIEN_TEXTURE_A2 { 9,  0, 10, 10}
 #define ALIEN_TEXTURE_B1 { 0,  9, 11,  8}

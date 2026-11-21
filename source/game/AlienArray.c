@@ -138,6 +138,11 @@ bool AlienArray_ProjectileCollision(AlienArray *array, Projectile *proj, Game *g
     array->isAlive[normalPos.x][normalPos.y] = false;
     array->livingAliens--;
 
+    Vec2i worldPos = { normalPos.x * ALIENS_GAP_X, normalPos.y * ALIENS_GAP_Y };
+    worldPos = AddVec2i(worldPos, array->position);
+
+    Game_ExplosionAt(game, worldPos);
+
     // Add score
     if(normalPos.y == 0)      game->score += SCORE_ALIEN_A;
     else if(normalPos.y <= 2) game->score += SCORE_ALIEN_B;

@@ -15,7 +15,14 @@ typedef enum GameState : uint8_t{
 
 typedef uint16_t Scores[5];
 
+typedef struct Explosion{
+  Texture *texture;
+  Vec2i position;
+  uint8_t lifeTimer;
+} Explosion;
+
 typedef struct Game{
+  Explosion explosion;
   Scores highScores;
   Player *player;
   AlienArray *aliens;
@@ -31,6 +38,8 @@ void DestroyGame(Game *game, Renderer *r);
 void Game_Tick(Game *game, Renderer *renderer, Window *window);
 void Game_Draw(Game *game, Renderer *renderer);
 void Game_RemoveLife(Game *game);
+
+void Game_ExplosionAt(Game *game, Vec2i position);
 
 void Game_SaveScore(Scores highScores, uint16_t score, Renderer *r);
 void Game_LoadSaveScore(Scores hScores, Renderer *r);
