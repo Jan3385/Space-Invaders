@@ -26,13 +26,13 @@ typedef struct Game{
 } Game;
 
 Game *CreateGame(Renderer *renderer, Scores highScores);
-void DestroyGame(Game *game);
+void DestroyGame(Game *game, Renderer *r);
 
 void Game_Tick(Game *game, Renderer *renderer, Window *window);
 void Game_Draw(Game *game, Renderer *renderer);
 void Game_RemoveLife(Game *game);
 
-void Game_SaveScore(Scores highScores, uint16_t score);
-void Game_LoadSaveScore(Scores hScores);
+void Game_SaveScore(Scores highScores, uint16_t score, Renderer *r);
+void Game_LoadSaveScore(Scores hScores, Renderer *r);
 
 #endif

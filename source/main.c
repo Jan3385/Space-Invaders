@@ -8,6 +8,9 @@ void RenderApp(Renderer* renderer, Game *game, GameState gameState, uint16_t sco
 
 int main(int argc, char *argv[])
 {
+  // /path/to/app -> /path/to
+  strrchr(argv[0], '/')[0] = '\0';
+
   srand((int)time(NULL));
   InitSDL();
 
@@ -17,13 +20,14 @@ int main(int argc, char *argv[])
   );
 
   Renderer *renderer = CreateRenderer(
-    window
+    window,
+    argv[0]
   );
 
   Game *game = NULL;
   uint16_t score = 0;
   Scores highScores = { 0 };
-  Game_LoadSaveScore(highScores);
+  Game_LoadSaveScore(highScores, renderer);
 
   GameState gameState = GameStart;
 
@@ -44,8 +48,8 @@ int main(int argc, char *argv[])
       Window_ResetKeyEvents(window);
 
       score = game->score;
-      DestroyGame(game);
-      Game_LoadSaveScore(highScores);
+      DestroyGame(game, renderer);
+      Game_LoadSaveScore(highScores, renderer);
       game = NULL;
       gameState = GameEnd;
     }
@@ -53,9 +57,10 @@ int main(int argc, char *argv[])
     RenderApp(renderer, game, gameState, score, highScores);
   }
 
-  if(game) DestroyGame(game); game     = NULL;
-  DestroyRenderer(renderer);  renderer = NULL;
-  DestroyWindow(window);      window   = NULL;
+  if(game) 
+    DestroyGame(game, renderer); game     = NULL;
+  DestroyRenderer(renderer);     renderer = NULL;
+  DestroyWindow(window);         window   = NULL;
   
   QuitSDL();
 

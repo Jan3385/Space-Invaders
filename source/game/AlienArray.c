@@ -11,7 +11,7 @@ AlienArray *CreateAlienArray(Renderer *renderer){
       arr->isAlive[x][y] = true;
   arr->livingAliens = ALIENS_WIDTH * ALIENS_HEIGHT;
 
-  arr->spritesheet = Renderer_LoadTexture(renderer, ALIENS_TEXTURE_SHEET);
+  arr->spritesheet = Renderer_LoadTexture(renderer, Renderer_FileGetPathTo(renderer, ALIENS_TEXTURE_SHEET));
   arr->movement = 1;
   arr->position = (Vec2i){1, 45};
   arr->secondaryTexture = true;
@@ -19,7 +19,7 @@ AlienArray *CreateAlienArray(Renderer *renderer){
   arr->deadRowStart = 0;
   arr->deadRowEnd   = ALIENS_WIDTH;
 
-  arr->projectileTexture = Renderer_LoadTexture(renderer, ENEMY_PROJECTILE_TEXTURE);
+  arr->projectileTexture = Renderer_LoadTexture(renderer, Renderer_FileGetPathTo(renderer, ENEMY_PROJECTILE_TEXTURE));
   arr->eProjectile = NULL;
 }
 

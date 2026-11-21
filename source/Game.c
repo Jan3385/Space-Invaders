@@ -18,8 +18,8 @@ Game *CreateGame(Renderer *renderer, Scores highScores){
   return g;
 }
 
-void DestroyGame(Game *game){
-  Game_SaveScore(game->highScores, game->score);
+void DestroyGame(Game *game, Renderer *r){
+  Game_SaveScore(game->highScores, game->score, r);
 
   DestroyPlayer(game->player);
   DestroyAlienArray(game->aliens);
@@ -147,8 +147,10 @@ void Game_RemoveLife(Game *game){
   game->lives--;
 }
 
-void Game_SaveScore(Scores highScores, uint16_t score){
-  FILE *f = fopen(SAVE_FILE, "wb");
+void Game_SaveScore(Scores highScores, uint16_t score, Renderer *r){
+  FILE *f = NULL;
+  if(r)
+    f = fopen(Renderer_FileGetPathTo(r, SAVE_FILE), "wb");
   
   if(!f){
     SDL_LogWarn(SDL_LOG_CATEGORY_SYSTEM, "Could not open file '%d'! Score was not saved");
@@ -171,8 +173,8 @@ void Game_SaveScore(Scores highScores, uint16_t score){
   fclose(f);
 }
 
-void Game_LoadSaveScore(Scores hScores){
-  FILE *f = fopen(SAVE_FILE, "rb");
+void Game_LoadSaveScore(Scores hScores, Renderer *r){
+  FILE *f = fopen(Renderer_FileGetPathTo(r, SAVE_FILE), "rb");
   
   if(!f){
     SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "Could not open '%d'. This may be because no save was yet created");

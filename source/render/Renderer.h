@@ -24,6 +24,8 @@ typedef struct Texture {
 
 typedef struct Renderer {
   SDL_Renderer *r;
+  
+  char *fullAppPath;
 
   TTF_Font *font;
   Texture *spaceBar;
@@ -33,12 +35,14 @@ typedef struct Renderer {
 void InitSDL();
 void QuitSDL();
 
-Renderer *CreateRenderer(Window *window);
+Renderer *CreateRenderer(Window *window, char *fullAppPath);
 void DestroyRenderer(Renderer *renderer);
 
 Texture *Renderer_LoadTexture(Renderer *renderer, const char* file);
 Texture *Renderer_LoadTextureEmpty(Renderer *renderer, uint16_t width, uint16_t height);
 void Renderer_UnloadTexture(Texture *texture);
+
+char *Renderer_FileGetPathTo(Renderer *renderer, char *filePath);
 
 void Renderer_RenderPlayer(Renderer *renderer, Player *p);
 void Renderer_RenderAlienArray(Renderer *renderer, AlienArray *array);

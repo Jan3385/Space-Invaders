@@ -29,7 +29,7 @@ void QuitSDL(){
   SDL_Quit();
 }
 
-Renderer *CreateRenderer(Window *window)
+Renderer *CreateRenderer(Window *window, char *fullAppPath)
 {
   Renderer *renderer = (Renderer*)malloc(sizeof(Renderer));
 
@@ -39,13 +39,17 @@ Renderer *CreateRenderer(Window *window)
     SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
   );
 
-  renderer->font = TTF_OpenFont(USED_FONT, 8);
+  renderer->fullAppPath = fullAppPath;
+
+  renderer->font = TTF_OpenFont(Renderer_FileGetPathTo(renderer, USED_FONT), 8);
   if(renderer->font == NULL){
     SDL_Log("SDL FONT LOAD ERR:\n%s\n", TTF_GetError());
   }
 
-  renderer->spaceBar = Renderer_LoadTexture(renderer, SPACEBAR_TEXTURE);
-  renderer->alienTexture = Renderer_LoadTexture(renderer, SINGLE_ALIEN_TEXTURE);
+
+  renderer->spaceBar     = Renderer_LoadTexture(renderer, Renderer_FileGetPathTo(renderer, SPACEBAR_TEXTURE));
+  renderer->alienTexture = Renderer_LoadTexture(renderer, Renderer_FileGetPathTo(renderer, SINGLE_ALIEN_TEXTURE));
+
 
   return renderer;
 }
@@ -101,6 +105,16 @@ void Renderer_UnloadTexture(Texture *texture){
 
   SDL_DestroyTexture(texture->t);
   free(texture);
+}
+
+char *Renderer_FileGetPathTo(Renderer *renderer, char *filePath){
+  static char path[128] = "";
+
+  strcpy(path, renderer->fullAppPath);
+  strcat(path, "/");
+  strcat(path, filePath);
+
+  return path;
 }
 
 void Renderer_RenderProjectile(Renderer *renderer, Projectile *proj){

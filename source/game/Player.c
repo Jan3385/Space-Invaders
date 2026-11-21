@@ -7,8 +7,8 @@
 Player *CreatePlayer(Renderer *renderer){
   Player *p = (Player*)malloc(sizeof(Player));
 
-  p->texture = Renderer_LoadTexture(renderer, PLAYER_TEXTURE);
-  p->projectileTexture = Renderer_LoadTexture(renderer, PLAYER_PROJECTILE_TEXTURE);
+  p->texture = Renderer_LoadTexture(renderer, Renderer_FileGetPathTo(renderer, PLAYER_TEXTURE));
+  p->projectileTexture = Renderer_LoadTexture(renderer, Renderer_FileGetPathTo(renderer, PLAYER_PROJECTILE_TEXTURE));
   p->pProjectile = NULL;
   
   p->pos = (Vec2i){WINDOW_WIDTH/2, WINDOW_HEIGHT-30};

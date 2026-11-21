@@ -7,7 +7,7 @@ Mothership *CreateMothership(Renderer *renderer){
   Mothership *ship = (Mothership*)malloc(sizeof(Mothership));
 
   ship->pos = (Vec2i){WINDOW_WIDTH, 27};
-  ship->texture = Renderer_LoadTexture(renderer, MOTHERSHIP_TEXTURE);
+  ship->texture = Renderer_LoadTexture(renderer, Renderer_FileGetPathTo(renderer, MOTHERSHIP_TEXTURE));
 
   return ship;
 }
