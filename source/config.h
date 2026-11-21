@@ -39,6 +39,11 @@
 #define WINDOW_HEIGHT 256
 #define WINDOW_SCALE  2
 
+// Audio
+#define AUDIO_ENABLE true
+#define MUSIC_LOUDNESS 0.5f // 0.0f - 1.0f
+#define USED_MUSIC "assets/Tetris-Music.wav" // Tetris music just SLAPS different
+
 // Misc
 #define USED_FONT "assets/PixelFont2.ttf"
 #define SAVE_FILE "SaveScore.bin"

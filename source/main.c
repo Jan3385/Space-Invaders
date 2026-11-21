@@ -1,5 +1,6 @@
 #include "config.h"
 #include "render/Renderer.h"
+#include "Audio.h"
 #include "Game.h"
 
 #include <time.h>
@@ -24,6 +25,8 @@ int main(int argc, char *argv[])
     argv[0]
   );
 
+  Audio *audio = CreateAudio(renderer);
+
   Game *game = NULL;
   uint16_t score = 0;
   Scores highScores = { 0 };
@@ -32,6 +35,8 @@ int main(int argc, char *argv[])
   GameState gameState = GameStart;
 
   SDL_SetRenderDrawColor(renderer->r, BACKGROUND_COLOR);
+
+  if(audio) Audio_PlayAudio(audio);
   
   // Main loop
   while(window->isOpen){
@@ -55,10 +60,16 @@ int main(int argc, char *argv[])
     }
 
     RenderApp(renderer, game, gameState, score, highScores);
+
+    if(audio) Audio_TryLoopAudio(audio);
   }
 
   if(game) 
     DestroyGame(game, renderer); game     = NULL;
+
+  if(audio)
+    DestroyAudio(audio);         audio    = NULL;
+    
   DestroyRenderer(renderer);     renderer = NULL;
   DestroyWindow(window);         window   = NULL;
   
