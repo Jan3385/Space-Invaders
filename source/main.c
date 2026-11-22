@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
       Window_ResetKeyEvents(window);
     }
 
-    if(game && game->lives == 0) {
+    if(game && (game->lives == 0 || game->aliens->livingAliens == 0)) {
       Window_ResetKeyEvents(window);
 
       score = game->score;
