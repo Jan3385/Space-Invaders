@@ -5,7 +5,11 @@
 
 #include <time.h>
 
-void RenderApp(Renderer* renderer, Game *game, GameState gameState, uint16_t score, Scores highScores);
+typedef struct Slider {
+  char *name;
+  char sValue[8];
+  uint8_t value;
+} Slider;
 
 int main(int argc, char *argv[])
 {
@@ -17,12 +21,14 @@ int main(int argc, char *argv[])
 
   Window *window = CreateWindow(
     PROJECT_NAME,
-    WINDOW_WIDTH, WINDOW_HEIGHT
+    WINDOW_WIDTH, WINDOW_HEIGHT,
+    2
   );
 
   Renderer *renderer = CreateRenderer(
     window,
-    argv[0]
+    argv[0],
+    2
   );
 
   Audio *audio = CreateAudio(renderer);
@@ -31,21 +37,68 @@ int main(int argc, char *argv[])
   uint16_t score = 0;
   Scores highScores = { 0 };
   Game_LoadSaveScore(highScores, renderer);
-
   GameState gameState = GameStart;
 
   SDL_SetRenderDrawColor(renderer->r, BACKGROUND_COLOR);
 
   if(audio) Audio_PlayAudio(audio);
+
+  Slider options[3] = {
+    (Slider){"Lifes:",    "<  3  >", 3},
+    (Slider){"Music:",    "< OFF >", 0},
+    (Slider){"W. Scale:", "<  2  >", 2},
+  };
+  uint8_t selectedOption = 0;
   
   // Main loop
   while(window->isOpen){
     Window_PollEvents(window);
 
     if(game) Game_Tick(game, renderer, window);
-    else if(Window_KeyDown(window, KEY_SPACE)){
-      game = CreateGame(renderer, highScores);
-      gameState = GamePlay;
+    else {
+      if(Window_KeyDown(window, KEY_SPACE)){
+        game = CreateGame(renderer, highScores, options[0].value);
+        gameState = GamePlay;
+      }
+      if(Window_KeyDown(window, KEY_UP))
+        selectedOption = selectedOption-1 >= 0 ? selectedOption-1 : 0;
+      if(Window_KeyDown(window, KEY_DOWN))
+        selectedOption = selectedOption+1 < 3 ? selectedOption+1 : 2;
+
+      uint8_t valueChange = 0;
+      if(Window_KeyDown(window, KEY_LEFT))  valueChange--;
+      if(Window_KeyDown(window, KEY_RIGHT)) valueChange++;
+      if(valueChange != 0){
+        switch (selectedOption)
+        {
+        case 0: // Lifes
+          options[0].value += valueChange;
+          options[0].value = options[0].value < GAME_LIVES_MIN ? GAME_LIVES_MIN : options[0].value;
+          options[0].value = options[0].value > GAME_LIVES_MAX ? GAME_LIVES_MAX : options[0].value;
+
+          snprintf(options[0].sValue, 8, "< %2d  >", options[0].value);
+          break;
+        case 1: // Music ON/OFF
+          options[1].value = !options[1].value;
+
+          if(options[1].value)
+            strcpy(options[1].sValue, "< ON  >");
+          else
+            strcpy(options[1].sValue, "< OFF >");
+
+          Audio_PauseAudio(audio, !options[1].value);
+          break;
+        case 2: // Window scale
+          options[2].value += valueChange;
+          options[2].value = options[2].value < WINDOW_SCALE_MIN ? WINDOW_SCALE_MIN : options[2].value;
+          options[2].value = options[2].value > WINDOW_SCALE_MAX ? WINDOW_SCALE_MAX : options[2].value;
+
+          snprintf(options[2].sValue, 8, "<  %d  >", options[2].value);
+          Renderer_SetWindowScale(renderer, window, options[2].value);
+          break;
+        }
+      }
+
       Window_ResetKeyEvents(window);
     }
 
@@ -59,7 +112,31 @@ int main(int argc, char *argv[])
       gameState = GameEnd;
     }
 
-    RenderApp(renderer, game, gameState, score, highScores);
+    // Rendering ---
+    SDL_RenderClear(renderer->r);
+
+    switch (gameState)
+    {
+    case GameStart:
+      Renderer_RenderMenu(renderer, highScores[0]);
+
+      for(uint8_t i = 0; i < 3; i++)
+        Renderer_RenderSlider(renderer, 100 + i*20, i == selectedOption, options[i].name, options[i].sValue);
+    break;
+    case GamePlay:
+      if(game) Game_Draw(game, renderer);
+      else SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Game state PLAY but no game object is present!");
+      break;
+    case GameEnd:
+      Renderer_RenderEndScreen(renderer, score, highScores);
+      break;
+    default:
+      SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Invalid GameState present!");
+      break;
+    }
+
+    SDL_RenderPresent(renderer->r);
+    // ----------
 
     if(audio) Audio_TryLoopAudio(audio);
   }
@@ -76,27 +153,4 @@ int main(int argc, char *argv[])
   QuitSDL();
 
   return 0;
-}
-
-void RenderApp(Renderer* renderer, Game *game, GameState gameState, uint16_t score, Scores highScores){
-  SDL_RenderClear(renderer->r);
-
-  switch (gameState)
-  {
-  case GameStart:
-    Renderer_RenderMenu(renderer, highScores[0]);
-  break;
-  case GamePlay:
-    if(game) Game_Draw(game, renderer);
-    else SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Game state PLAY but no game object is present!");
-    break;
-  case GameEnd:
-    Renderer_RenderEndScreen(renderer, score, highScores);
-    break;
-  default:
-    SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Invalid GameState present!");
-    break;
-  }
-
-  SDL_RenderPresent(renderer->r);
 }

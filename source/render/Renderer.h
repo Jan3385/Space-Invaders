@@ -28,6 +28,7 @@ typedef struct Renderer {
   SDL_Renderer *r;
   
   char *fullAppPath;
+  uint8_t windowScale;
 
   TTF_Font *font;
   Texture *spaceBar;
@@ -37,8 +38,10 @@ typedef struct Renderer {
 void InitSDL();
 void QuitSDL();
 
-Renderer *CreateRenderer(Window *window, char *fullAppPath);
+Renderer *CreateRenderer(Window *window, char *fullAppPath, uint8_t windowScale);
 void DestroyRenderer(Renderer *renderer);
+
+void Renderer_SetWindowScale(Renderer *renderer, Window *window, uint8_t scale);
 
 Texture *Renderer_LoadTexture(Renderer *renderer, const char* file);
 Texture *Renderer_LoadTextureEmpty(Renderer *renderer, uint16_t width, uint16_t height);
@@ -56,6 +59,8 @@ void Renderer_RenderExplosion(Renderer *renderer, Explosion *explosion);
 void Renderer_RenderText(Renderer *renderer, const char* str, Vec2i pos);
 void Renderer_RenderTextCentered(Renderer *renderer, const char* str, Vec2i pos);
 void Renderer_RenderLine(Renderer *renderer, int yOffset, uint8_t height);
+
+void Renderer_RenderSlider(Renderer *renderer, uint8_t height, bool selected, char* text, char* value);
 
 /// @brief Draws a progress line from left to right
 /// @param renderer 

@@ -1,9 +1,9 @@
 #include "Window.h"
 #include "config.h"
 
-Window *CreateWindow(const char *title, int w, int h){
-  w *= WINDOW_SCALE;
-  h *= WINDOW_SCALE;
+Window *CreateWindow(const char *title, int w, int h, uint8_t scale){
+  w *= scale;
+  h *= scale;
 
   Window *window = (Window*)malloc(sizeof(Window));
 
@@ -39,6 +39,8 @@ void Window_PollEvents(Window *window){
       SDL_Keycode key = event.key.keysym.sym;
       if(key == SDLK_LEFT  || key == SDLK_a) window->keysDown[KEY_LEFT]  = true;
       if(key == SDLK_RIGHT || key == SDLK_d) window->keysDown[KEY_RIGHT] = true;
+      if(key == SDLK_UP    || key == SDLK_w) window->keysDown[KEY_UP]    = true;
+      if(key == SDLK_DOWN  || key == SDLK_s) window->keysDown[KEY_DOWN]  = true;
       if(key == SDLK_SPACE) window->keysDown[KEY_SPACE] = true;
     }
       break;
@@ -46,6 +48,8 @@ void Window_PollEvents(Window *window){
       SDL_Keycode key = event.key.keysym.sym;
       if(key == SDLK_LEFT  || key == SDLK_a) window->keysDown[KEY_LEFT]  = false;
       if(key == SDLK_RIGHT || key == SDLK_d) window->keysDown[KEY_RIGHT] = false;
+      if(key == SDLK_UP    || key == SDLK_w) window->keysDown[KEY_UP]    = false;
+      if(key == SDLK_DOWN  || key == SDLK_s) window->keysDown[KEY_DOWN]  = false;
       if(key == SDLK_SPACE) window->keysDown[KEY_SPACE] = false;
     }
     default:

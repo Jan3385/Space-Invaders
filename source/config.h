@@ -7,7 +7,8 @@
 #define PROJECT_NAME "Space Invaders!"
 
 // Game Parameters
-#define GAME_LIVES    3 // MAX 9
+#define GAME_LIVES_MIN 1
+#define GAME_LIVES_MAX 9
 #define PLAYER_SPEED  2
 #define PLAYER_SHOOT_COOLDOWN 55  // MAX <uint8
 #define PLAYER_PROJECTILE_SPEED 4 // MAX <uint8
@@ -37,7 +38,8 @@
 // Original Space Invaders resolution
 #define WINDOW_WIDTH  224
 #define WINDOW_HEIGHT 256
-#define WINDOW_SCALE  2
+#define WINDOW_SCALE_MIN 1
+#define WINDOW_SCALE_MAX 5
 
 // Audio
 #define AUDIO_ENABLE true
@@ -89,7 +91,6 @@
 #define ALIEN_TEXTURE_C2 {13, 18, 12,  8}
 
 // Asserts for invalid configs
-static_assert(GAME_LIVES <= 9, "Game can have maximum of 9 lives!");
 static_assert(PLAYER_SHOOT_COOLDOWN < UINT8_MAX, "Shooting cooldown has to be lower than 8b unsigned int max!");
 static_assert(PLAYER_PROJECTILE_SPEED < UINT8_MAX && ENEMY_PROJECTILE_SPEED < UINT8_MAX, "Projectile speed is limited to below 8b unsigned int max!");
 static_assert(ALIENS_WIDTH <= UINT8_MAX && ALIENS_HEIGHT <= UINT8_MAX, "Alien size has to be below or equal 8b unsigned int max!");

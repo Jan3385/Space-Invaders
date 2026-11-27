@@ -35,10 +35,14 @@ void Audio_PlayAudio(Audio *audio){
   audio->deviceID = SDL_OpenAudioDevice(NULL, 0, &audio->spec, NULL, 0);
   SDL_QueueAudio(audio->deviceID, audio->buffer, audio->audioLen);
 
-  SDL_PauseAudioDevice(audio->deviceID, 0); // Unpause
+  //SDL_PauseAudioDevice(audio->deviceID, 0); // Unpause
 }
 
 void Audio_TryLoopAudio(Audio *audio){
   if(SDL_GetQueuedAudioSize(audio->deviceID) < audio->audioLen/10)
     SDL_QueueAudio(audio->deviceID, audio->buffer, audio->audioLen);
+}
+
+void Audio_PauseAudio(Audio *audio, bool pause){
+  SDL_PauseAudioDevice(audio->deviceID, pause);
 }

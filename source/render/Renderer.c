@@ -4,6 +4,11 @@
 #include "Game.h"
 
 void InitSDL(){
+#ifdef __linux__
+  // Better support for things like hyprland (problems with changing window scale)
+  SDL_SetHint(SDL_HINT_VIDEODRIVER, "x11,wayland");
+#endif
+
   if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0){
     printf("SDL INIT ERR:\n%s\n", SDL_GetError());
     exit(1);
@@ -29,7 +34,7 @@ void QuitSDL(){
   SDL_Quit();
 }
 
-Renderer *CreateRenderer(Window *window, char *fullAppPath)
+Renderer *CreateRenderer(Window *window, char *fullAppPath, uint8_t windowScale)
 {
   Renderer *renderer = (Renderer*)malloc(sizeof(Renderer));
 
@@ -40,6 +45,7 @@ Renderer *CreateRenderer(Window *window, char *fullAppPath)
   );
 
   renderer->fullAppPath = fullAppPath;
+  renderer->windowScale = windowScale;
 
   renderer->font = TTF_OpenFont(Renderer_FileGetPathTo(renderer, USED_FONT), 8);
   if(renderer->font == NULL){
@@ -63,6 +69,12 @@ void DestroyRenderer(Renderer *renderer){
   Renderer_UnloadTexture(renderer->alienTexture);
 
   free(renderer);
+}
+
+void Renderer_SetWindowScale(Renderer *renderer, Window *window, uint8_t scale){
+  renderer->windowScale = scale;
+
+  SDL_SetWindowSize(window->w, WINDOW_WIDTH*scale, WINDOW_HEIGHT*scale);
 }
 
 Texture *Renderer_LoadTexture(Renderer *renderer, const char *file){
@@ -121,8 +133,8 @@ void Renderer_RenderProjectile(Renderer *renderer, Projectile *proj){
   if(!proj) return;
 
   SDL_Rect rect = { 
-    proj->pos.x * WINDOW_SCALE,           proj->pos.y * WINDOW_SCALE, 
-    proj->texture->width * WINDOW_SCALE,  proj->texture->height * WINDOW_SCALE
+    proj->pos.x * renderer->windowScale,           proj->pos.y * renderer->windowScale, 
+    proj->texture->width * renderer->windowScale,  proj->texture->height * renderer->windowScale
   };
 
   uint8_t flip = proj->lifetime%10 < 5 ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE;
@@ -131,8 +143,8 @@ void Renderer_RenderProjectile(Renderer *renderer, Projectile *proj){
 
 void Renderer_RenderPlayer(Renderer *renderer, Player *p){
   SDL_Rect rect = { 
-    p->pos.x * WINDOW_SCALE,          p->pos.y * WINDOW_SCALE, 
-    p->texture->width * WINDOW_SCALE, p->texture->height * WINDOW_SCALE
+    p->pos.x * renderer->windowScale,          p->pos.y * renderer->windowScale, 
+    p->texture->width * renderer->windowScale, p->texture->height * renderer->windowScale
   };
 
   SDL_RenderCopy(renderer->r, p->texture->t, NULL, &rect);
@@ -150,9 +162,9 @@ void Renderer_RenderAlienArray(Renderer *renderer, AlienArray *array){
       const int xGap = x * ALIENS_GAP_X;
 
       SDL_Rect rect = {
-        (array->position.x + xGap) * WINDOW_SCALE,
-        (array->position.y + yGap) * WINDOW_SCALE,
-        src.w * WINDOW_SCALE, src.h * WINDOW_SCALE
+        (array->position.x + xGap) * renderer->windowScale,
+        (array->position.y + yGap) * renderer->windowScale,
+        src.w * renderer->windowScale, src.h * renderer->windowScale
       };
       SDL_RenderCopy(renderer->r, array->spritesheet->t, &src, &rect);
     }
@@ -163,8 +175,8 @@ void Renderer_RenderAlienArray(Renderer *renderer, AlienArray *array){
 
 void Renderer_RenderMothership(Renderer *renderer, Mothership *mothership){
   SDL_Rect rect = { 
-    mothership->pos.x * WINDOW_SCALE,          mothership->pos.y * WINDOW_SCALE, 
-    mothership->texture->width * WINDOW_SCALE, mothership->texture->height * WINDOW_SCALE
+    mothership->pos.x * renderer->windowScale,          mothership->pos.y * renderer->windowScale, 
+    mothership->texture->width * renderer->windowScale, mothership->texture->height * renderer->windowScale
   };
 
   SDL_RenderCopy(renderer->r, mothership->texture->t, NULL, &rect);
@@ -173,8 +185,8 @@ void Renderer_RenderMothership(Renderer *renderer, Mothership *mothership){
 void Renderer_RenderBunkerArray(Renderer *renderer, BunkerArray *array){
   for (uint8_t i = 0; i < BUNKER_COUNT; i++){
     SDL_Rect rect = {
-      array->bunkers[i]->pos.x * WINDOW_SCALE, (array->bunkers[i]->pos.y + array->yOffset) * WINDOW_SCALE,
-      BUNKER_WIDTH * WINDOW_SCALE,             BUNKER_HEIGHT * WINDOW_SCALE
+      array->bunkers[i]->pos.x * renderer->windowScale, (array->bunkers[i]->pos.y + array->yOffset) * renderer->windowScale,
+      BUNKER_WIDTH * renderer->windowScale,             BUNKER_HEIGHT * renderer->windowScale
     };
 
     SDL_RenderCopy(renderer->r, array->bunkers[i]->texture->t, NULL, &rect);
@@ -198,8 +210,8 @@ void Renderer_RenderText(Renderer *renderer, const char *str, Vec2i pos){
   SDL_SetTextureScaleMode(t, SDL_ScaleModeNearest);
 
   SDL_Rect msgRect = {
-    pos.x * WINDOW_SCALE, pos.y * WINDOW_SCALE,
-    tW     * WINDOW_SCALE, tH     * WINDOW_SCALE
+    pos.x * renderer->windowScale,  pos.y * renderer->windowScale,
+    tW     * renderer->windowScale, tH     * renderer->windowScale
   };
 
   SDL_RenderCopy(renderer->r, t, NULL, &msgRect);
@@ -225,8 +237,8 @@ void Renderer_RenderTextCentered(Renderer *renderer, const char *str, Vec2i pos)
   SDL_SetTextureScaleMode(t, SDL_ScaleModeNearest);
 
   SDL_Rect msgRect = {
-    (pos.x - tW/2) * WINDOW_SCALE, (pos.y - tH/2) * WINDOW_SCALE,
-    tW    * WINDOW_SCALE,          tH    * WINDOW_SCALE
+    (pos.x - tW/2) * renderer->windowScale, (pos.y - tH/2) * renderer->windowScale,
+    tW    * renderer->windowScale,          tH    * renderer->windowScale
   };
 
   SDL_RenderCopy(renderer->r, t, NULL, &msgRect);
@@ -239,8 +251,28 @@ void Renderer_RenderLine(Renderer *renderer, int yOffset, uint8_t height){
   SDL_SetRenderDrawColor(renderer->r, LINE_COLOR);
 
   SDL_Rect rect = { 
-    0,                         yOffset * WINDOW_SCALE, 
-    WINDOW_WIDTH*WINDOW_SCALE, WINDOW_SCALE * height
+    0,                         yOffset * renderer->windowScale, 
+    WINDOW_WIDTH*renderer->windowScale, renderer->windowScale * height
+  };
+
+  SDL_RenderFillRect(renderer->r, &rect);
+
+  SDL_SetRenderDrawColor(renderer->r, BACKGROUND_COLOR);
+}
+
+void Renderer_RenderSlider(Renderer *renderer, uint8_t height, bool selected, char *text, char *value){
+  Renderer_RenderText(renderer, text,  (Vec2i){45, height});
+  Renderer_RenderText(renderer, value, (Vec2i){125, height});
+
+  if(!selected) return;
+
+  SDL_SetRenderDrawColor(renderer->r, 0xFF, 0xFF, 0xFF, 0xFF);
+
+  static const uint8_t PADDING = 45;
+
+  SDL_Rect rect = { 
+    PADDING * renderer->windowScale,              (height+10) * renderer->windowScale,
+    (WINDOW_WIDTH-(PADDING*2))*renderer->windowScale, renderer->windowScale * 1
   };
 
   SDL_RenderFillRect(renderer->r, &rect);
@@ -252,8 +284,8 @@ void Renderer_RenderLineProgress(Renderer *renderer, int yOffset, uint8_t height
   SDL_SetRenderDrawColor(renderer->r, LINE_COLOR);
 
   SDL_Rect rect = { 
-    0,                                  yOffset * WINDOW_SCALE, 
-    WINDOW_WIDTH*WINDOW_SCALE*progress, WINDOW_SCALE * height
+    0,                                           yOffset * renderer->windowScale, 
+    WINDOW_WIDTH*renderer->windowScale*progress, renderer->windowScale * height
   };
 
   SDL_RenderFillRect(renderer->r, &rect);
@@ -264,8 +296,8 @@ void Renderer_RenderLineProgress(Renderer *renderer, int yOffset, uint8_t height
 void Renderer_RenderTexture(Renderer *renderer, Texture *texture, Vec2i pos, uint8_t scale)
 {
   SDL_Rect rect = { 
-    (pos.x-(texture->width*scale)/2) * WINDOW_SCALE,  (pos.y-(texture->height*scale)/2) * WINDOW_SCALE, 
-    texture->width * WINDOW_SCALE * scale,            texture->height * WINDOW_SCALE * scale
+    (pos.x-(texture->width*scale)/2) * renderer->windowScale,  (pos.y-(texture->height*scale)/2) * renderer->windowScale, 
+    texture->width * renderer->windowScale * scale,            texture->height * renderer->windowScale * scale
   };
 
   SDL_RenderCopy(renderer->r, texture->t, NULL, &rect);
@@ -277,9 +309,9 @@ void Renderer_RenderMenu(Renderer *renderer, uint16_t highScore){
 
   char bestScoreText[20]; // "Best Score: " (7) + '-' + "######" (6) + '\0'
   sprintf(bestScoreText, "Best Score: %d", highScore%100000);
-  Renderer_RenderTextCentered(renderer, bestScoreText, (Vec2i){WINDOW_WIDTH/2, WINDOW_HEIGHT/2-53});
+  Renderer_RenderTextCentered(renderer, bestScoreText, (Vec2i){WINDOW_WIDTH/2, WINDOW_HEIGHT/2-80});
 
-  Renderer_RenderTexture(renderer, renderer->alienTexture, (Vec2i){WINDOW_WIDTH/2, WINDOW_HEIGHT/2-20}, 6);
+  // Renderer_RenderTexture(renderer, renderer->alienTexture, (Vec2i){WINDOW_WIDTH/2, WINDOW_HEIGHT/2-20}, 6);
 
   Renderer_RenderTextCentered(renderer, "Press SPACE to play", (Vec2i){WINDOW_WIDTH/2, WINDOW_HEIGHT-80});
   Renderer_RenderTexture(renderer, renderer->spaceBar, (Vec2i){WINDOW_WIDTH/2, WINDOW_HEIGHT-50}, 1);
@@ -307,8 +339,6 @@ void Renderer_RenderEndScreen(Renderer *renderer, uint16_t score, Scores highSco
 }
 
 void Renderer_RenderLives(Renderer *renderer, Game *game){
-  if(game->lives > GAME_LIVES) return; // Do not render for invalid lives
-
   char livesStr[2]; // '0' + '\n'
   sprintf(livesStr, "%d", game->lives%10);
   Renderer_RenderText(renderer, livesStr, (Vec2i){5, WINDOW_HEIGHT - 5 - 7});
@@ -319,10 +349,10 @@ void Renderer_RenderLives(Renderer *renderer, Game *game){
   };
   for (uint8_t i = 0; i < game->lives; i++){
     SDL_Rect rect = { 
-      (offset.x + i * (game->player->texture->width+2)) * WINDOW_SCALE, 
-      offset.y * WINDOW_SCALE, 
-      game->player->texture->width  * WINDOW_SCALE, 
-      game->player->texture->height * WINDOW_SCALE
+      (offset.x + i * (game->player->texture->width+2)) * renderer->windowScale, 
+      offset.y * renderer->windowScale, 
+      game->player->texture->width  * renderer->windowScale, 
+      game->player->texture->height * renderer->windowScale
     };
 
     SDL_RenderCopy(renderer->r, game->player->texture->t, NULL, &rect);
@@ -334,8 +364,8 @@ void Renderer_RenderExplosion(Renderer *renderer, Explosion *explosion){
   if(explosion->lifeTimer == 0) return;
 
   SDL_Rect rect = {
-    explosion->position.x * WINDOW_SCALE,     explosion->position.y * WINDOW_SCALE,
-    explosion->texture->width * WINDOW_SCALE, explosion->texture->height * WINDOW_SCALE
+    explosion->position.x * renderer->windowScale,     explosion->position.y * renderer->windowScale,
+    explosion->texture->width * renderer->windowScale, explosion->texture->height * renderer->windowScale
   };
 
   SDL_RenderCopy(renderer->r, explosion->texture->t, NULL, &rect);

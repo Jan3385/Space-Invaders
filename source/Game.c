@@ -2,7 +2,7 @@
 
 #include "config.h"
 
-Game *CreateGame(Renderer *renderer, Scores highScores){
+Game *CreateGame(Renderer *renderer, Scores highScores, uint8_t lives){
   Game *g = (Game*)malloc(sizeof(Game));
 
   g->player = CreatePlayer(renderer);
@@ -10,7 +10,7 @@ Game *CreateGame(Renderer *renderer, Scores highScores){
   g->mothership = NULL;
   g->bunkers = CreateBunkerArray(WINDOW_HEIGHT - 55, renderer);
 
-  g->lives = GAME_LIVES;
+  g->lives = lives;
   g->score = 0;
 
   g->explosion.texture = Renderer_LoadTexture(renderer, Renderer_FileGetPathTo(renderer, EXPLOSION_TEXTURE));

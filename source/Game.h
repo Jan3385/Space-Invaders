@@ -32,7 +32,7 @@ typedef struct Game{
   uint8_t lives;
 } Game;
 
-Game *CreateGame(Renderer *renderer, Scores highScores);
+Game *CreateGame(Renderer *renderer, Scores highScores, uint8_t lives);
 void DestroyGame(Game *game, Renderer *r);
 
 void Game_Tick(Game *game, Renderer *renderer, Window *window);

@@ -18,4 +18,6 @@ void DestroyAudio(Audio *audio);
 void Audio_PlayAudio(Audio *audio);
 void Audio_TryLoopAudio(Audio *audio);
 
+void Audio_PauseAudio(Audio *audio, bool pause);
+
 #endif
