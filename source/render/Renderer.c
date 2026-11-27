@@ -9,17 +9,20 @@ void InitSDL(){
   SDL_SetHint(SDL_HINT_VIDEODRIVER, "x11,wayland");
 #endif
 
+  // Video/Audio
   if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0){
     printf("SDL INIT ERR:\n%s\n", SDL_GetError());
     exit(1);
   }
 
+  // Image loading
   if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)){
     printf("IMG INIT ERR:\n%s\n", IMG_GetError());
     SDL_Quit();
     exit(2);
   }
 
+  // Font loading
   if(TTF_Init() != 0){
     printf("TTF INIT ERR:\n%s\n", TTF_GetError());
     IMG_Quit();

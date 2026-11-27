@@ -11,14 +11,17 @@ typedef struct Slider {
   uint8_t value;
 } Slider;
 
+// clean main() is just a hoax by big C
 int main(int argc, char *argv[])
 {
   // /path/to/app -> /path/to
   strrchr(argv[0], '/')[0] = '\0';
 
+  // Basic initialization
   srand((int)time(NULL));
   InitSDL();
 
+  // Init of game structs
   Window *window = CreateWindow(
     PROJECT_NAME,
     WINDOW_WIDTH, WINDOW_HEIGHT,
@@ -33,6 +36,7 @@ int main(int argc, char *argv[])
 
   Audio *audio = CreateAudio(renderer);
 
+  // Game variables
   Game *game = NULL;
   uint16_t score = 0;
   Scores highScores = { 0 };
@@ -43,6 +47,7 @@ int main(int argc, char *argv[])
 
   if(audio) Audio_PlayAudio(audio);
 
+  // Game options
   Slider options[3] = {
     (Slider){"Lifes:",    "<  3  >", 3},
     (Slider){"Music:",    "< OFF >", 0},
@@ -50,13 +55,15 @@ int main(int argc, char *argv[])
   };
   uint8_t selectedOption = 0;
   
-  // Main loop
+  // Main loop -------------------
   while(window->isOpen){
     Window_PollEvents(window);
 
+    // If game is created, run game
     if(game) Game_Tick(game, renderer, window);
     else {
       if(Window_KeyDown(window, KEY_SPACE)){
+        // If game ended, go back to start screen
         if(gameState == GameEnd) {
           gameState = GameStart;
           Window_ResetKeyEvents(window);
@@ -66,6 +73,8 @@ int main(int argc, char *argv[])
         game = CreateGame(renderer, highScores, options[0].value);
         gameState = GamePlay;
       }
+
+      // left/right arrows for options
       if(Window_KeyDown(window, KEY_UP))
         selectedOption = selectedOption-1 >= 0 ? selectedOption-1 : 0;
       if(Window_KeyDown(window, KEY_DOWN))
@@ -74,6 +83,8 @@ int main(int argc, char *argv[])
       uint8_t valueChange = 0;
       if(Window_KeyDown(window, KEY_LEFT))  valueChange--;
       if(Window_KeyDown(window, KEY_RIGHT)) valueChange++;
+
+      // Logic for changing options values
       if(valueChange != 0){
         switch (selectedOption)
         {
@@ -107,7 +118,9 @@ int main(int argc, char *argv[])
 
       Window_ResetKeyEvents(window);
     }
+    // -----------------------------
 
+    // Game over
     if(game && (game->lives == 0 || game->aliens->livingAliens == 0)) {
       Window_ResetKeyEvents(window);
 
@@ -142,11 +155,12 @@ int main(int argc, char *argv[])
     }
 
     SDL_RenderPresent(renderer->r);
-    // ----------
+    // -------------
 
     if(audio) Audio_TryLoopAudio(audio);
   }
 
+  // Destructors when app ends
   if(game) 
     DestroyGame(game, renderer); game     = NULL;
 
