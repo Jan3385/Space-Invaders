@@ -57,6 +57,12 @@ int main(int argc, char *argv[])
     if(game) Game_Tick(game, renderer, window);
     else {
       if(Window_KeyDown(window, KEY_SPACE)){
+        if(gameState == GameEnd) {
+          gameState = GameStart;
+          Window_ResetKeyEvents(window);
+          continue;
+        }
+
         game = CreateGame(renderer, highScores, options[0].value);
         gameState = GamePlay;
       }
