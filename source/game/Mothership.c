@@ -34,6 +34,7 @@ bool Mothership_ProjectileCollision(Mothership *ship, Projectile *proj, Game *ga
 
   if(Projectile_isCollidingRect(proj, playerRect)) {
     game->score += SCORE_ALIEN_MOTHERSHIP;
+    Game_ExplosionAt(game, ship->pos);
     return true;
   }
 
