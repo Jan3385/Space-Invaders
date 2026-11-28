@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
     // If game is created, run game
     if(game) Game_Tick(game, renderer, window);
     else {
+      // Starting the game
       if(Window_KeyDown(window, KEY_SPACE)){
         // If game ended, go back to start screen
         if(gameState == GameEnd) {
@@ -74,49 +75,52 @@ int main(int argc, char *argv[])
         gameState = GamePlay;
       }
 
-      // left/right arrows for options
-      if(Window_KeyDown(window, KEY_UP))
-        selectedOption = selectedOption-1 >= 0 ? selectedOption-1 : 0;
-      if(Window_KeyDown(window, KEY_DOWN))
-        selectedOption = selectedOption+1 < 3 ? selectedOption+1 : 2;
-
-      uint8_t valueChange = 0;
-      if(Window_KeyDown(window, KEY_LEFT))  valueChange--;
-      if(Window_KeyDown(window, KEY_RIGHT)) valueChange++;
-
-      // Logic for changing options values
-      if(valueChange != 0){
-        switch (selectedOption)
-        {
-        case 0: // Lifes
-          options[0].value += valueChange;
-          options[0].value = options[0].value < GAME_LIVES_MIN ? GAME_LIVES_MIN : options[0].value;
-          options[0].value = options[0].value > GAME_LIVES_MAX ? GAME_LIVES_MAX : options[0].value;
-
-          snprintf(options[0].sValue, 8, "< %2d  >", options[0].value);
-          break;
-        case 1: // Music ON/OFF
-          options[1].value = !options[1].value;
-
-          if(options[1].value)
-            strcpy(options[1].sValue, "< ON  >");
-          else
-            strcpy(options[1].sValue, "< OFF >");
-
-          Audio_PauseAudio(audio, !options[1].value);
-          break;
-        case 2: // Window scale
-          options[2].value += valueChange;
-          options[2].value = options[2].value < WINDOW_SCALE_MIN ? WINDOW_SCALE_MIN : options[2].value;
-          options[2].value = options[2].value > WINDOW_SCALE_MAX ? WINDOW_SCALE_MAX : options[2].value;
-
-          snprintf(options[2].sValue, 8, "<  %d  >", options[2].value);
-          Renderer_SetWindowScale(renderer, window, options[2].value);
-          break;
+      // Menu options
+      if(gameState == GameStart){
+        // left/right arrows for options
+        if(Window_KeyDown(window, KEY_UP))
+          selectedOption = selectedOption-1 >= 0 ? selectedOption-1 : 0;
+        if(Window_KeyDown(window, KEY_DOWN))
+          selectedOption = selectedOption+1 < 3 ? selectedOption+1 : 2;
+  
+        uint8_t valueChange = 0;
+        if(Window_KeyDown(window, KEY_LEFT))  valueChange--;
+        if(Window_KeyDown(window, KEY_RIGHT)) valueChange++;
+  
+        // Logic for changing options values
+        if(valueChange != 0){
+          switch (selectedOption)
+          {
+          case 0: // Lifes
+            options[0].value += valueChange;
+            options[0].value = options[0].value < GAME_LIVES_MIN ? GAME_LIVES_MIN : options[0].value;
+            options[0].value = options[0].value > GAME_LIVES_MAX ? GAME_LIVES_MAX : options[0].value;
+  
+            snprintf(options[0].sValue, 8, "< %2d  >", options[0].value);
+            break;
+          case 1: // Music ON/OFF
+            options[1].value = !options[1].value;
+  
+            if(options[1].value)
+              strcpy(options[1].sValue, "< ON  >");
+            else
+              strcpy(options[1].sValue, "< OFF >");
+  
+            Audio_PauseAudio(audio, !options[1].value);
+            break;
+          case 2: // Window scale
+            options[2].value += valueChange;
+            options[2].value = options[2].value < WINDOW_SCALE_MIN ? WINDOW_SCALE_MIN : options[2].value;
+            options[2].value = options[2].value > WINDOW_SCALE_MAX ? WINDOW_SCALE_MAX : options[2].value;
+  
+            snprintf(options[2].sValue, 8, "<  %d  >", options[2].value);
+            Renderer_SetWindowScale(renderer, window, options[2].value);
+            break;
+          }
         }
+  
+        Window_ResetKeyEvents(window);
       }
-
-      Window_ResetKeyEvents(window);
     }
     // -----------------------------
 
