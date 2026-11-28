@@ -83,8 +83,8 @@
 #define SINGLE_ALIEN_TEXTURE "assets/Alien.png"
 #define MOTHERSHIP_TEXTURE "assets/Mothership.png"
 #define EXPLOSION_TEXTURE "assets/Explosion.png"
-#define ALIEN_TEXTURE_A1 { 0,  0, 10, 10}
-#define ALIEN_TEXTURE_A2 { 9,  0, 10, 10}
+#define ALIEN_TEXTURE_A1 { 0,  0, 10,  8}
+#define ALIEN_TEXTURE_A2 { 9,  0, 10,  8}
 #define ALIEN_TEXTURE_B1 { 0,  9, 11,  8}
 #define ALIEN_TEXTURE_B2 {12,  9, 11,  8}
 #define ALIEN_TEXTURE_C1 { 0, 18, 12,  8}
